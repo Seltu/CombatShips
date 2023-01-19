@@ -3,6 +3,8 @@ import pygame
 pygame.font.init()
 
 # Screen
+score_height = 50
+wall_width = 25
 screen_width = 800
 screen_height = 550
 
@@ -13,17 +15,8 @@ WHITE = (255, 255, 255)
 GREEN = (0, 127, 33)
 BLUE = (0, 97, 148)
 
-# Rectangles constants
-RECT_1 = (20, 20)
-RECT_2 = (60, 20)
-RECT_3 = (20, 60)
-RECT_4 = (30, 30)
-RECT_5 = (20, 108)
-RECT_6 = (108, 10)
-RECT_7 = (60, 30)
-RECT_8 = (30, 60)
-RECT_9 = (20, 168)
-RECT_10 = (168, 10)
+# Rectangles constant
+RECT_1 = (25, 25)
 
 # Screen refresh
 fps = 60

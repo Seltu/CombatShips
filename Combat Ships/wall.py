@@ -6,4 +6,4 @@ class Wall(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface(dimensions)
         self.image.fill(color)
-        self.rect = self.image.get_rect(center=coordinates)
+        self.rect = self.image.get_rect(topleft=coordinates)

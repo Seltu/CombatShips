@@ -72,11 +72,12 @@ class Tank(pygame.sprite.Sprite):
             self.x += vel_x * 2
             self.y += vel_y * 2
         if self.shoot and self.shoot_time <= 0 and len(self.ball_list) <= 2:
-            self.shoot = False
             self.shoot_time = shot_time
             ball = Ball(self.rect.x+3+vel_x*15, self.rect.y+5+vel_y*18, vel_x*4, vel_y*4)
             self.ball_list.append(ball)
             game.ball_sprites.add(ball)
+        if self.shoot:
+            self.shoot = False
 
     def ball_update(self):
         # update balls in list
