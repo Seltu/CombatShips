@@ -1,20 +1,31 @@
 import math
 
 import game
+import random
 from config import *
 from ball import *
-import random
+
+
+def rot_center(image, angle):
+    # rotate an image keeping its center and size
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
 
 
 class Tank(pygame.sprite.Sprite):
-    def __init__(self, sheet, pos_x, pos_y, current_sprite):
+    def __init__(self, sprite, pos_x, pos_y, current_sprite, ball_sprite):
         super().__init__()
         self.score = 0
         self.img_tank = []
+        self.img_ball = ball_sprite
         self.ball_list = []
         for i in range(4):
             for j in range(4):
-                self.img_tank.append(sheet.subsurface((j*48, i*48), (48, 48)))
+                self.img_tank.append(rot_center(pygame.transform.scale(sprite, (40, 40)), -(j+i*4)*22.5))
         self.direction = current_sprite
         self.image = self.img_tank[self.direction]
         self.rect = self.image.get_rect()
@@ -43,6 +54,12 @@ class Tank(pygame.sprite.Sprite):
     def rotate(self, rotation):
         self.rot = rotation
 
+    def reposition(self):
+        choice = random.choice(game.coord)
+        game.coord.remove(choice)
+        self.x = choice[0]
+        self.y = choice[1]
+
     def update(self):
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
@@ -50,10 +67,7 @@ class Tank(pygame.sprite.Sprite):
         if (self.stop or self.hit) and game.hit_timer <= 0:
             self.stop = False
             self.hit = False
-            choice = random.choice(game.coord)
-            game.coord.remove(choice)
-            self.x = choice[0]
-            self.y = choice[1]
+            self.reposition()
         if self.stop:
             return
         self.shoot_time -= 1
@@ -66,22 +80,25 @@ class Tank(pygame.sprite.Sprite):
         if self.hit:
             self.direction -= 0.8
             return
-        vel_x = math.cos((2-int(self.direction)/8)*math.pi)
-        vel_y = -math.sin((2-int(self.direction)/8)*math.pi)
+        vel_x = math.cos((2 - int(self.direction) / 8) * math.pi)
+        vel_y = -math.sin((2 - int(self.direction) / 8) * math.pi)
         if self.moveW:
             self.x += vel_x * 2
             self.y += vel_y * 2
         if self.shoot and self.shoot_time <= 0 and len(self.ball_list) <= 2:
             self.shoot_time = shot_time
-            ball = Ball(self.rect.x+3+vel_x*15, self.rect.y+5+vel_y*18, vel_x*4, vel_y*4)
+            ball = Ball(self.img_ball, self.rect.centerx + vel_x * 10,
+                        self.rect.centery + vel_y * 10, vel_x * 4, vel_y * 4)
             self.ball_list.append(ball)
             game.ball_sprites.add(ball)
+            shot_sound_effect.play()
         if self.shoot:
             self.shoot = False
 
     def ball_update(self):
         # update balls in list
         for ball in self.ball_list:
+            ball.collided = False
             for i in range(0, ball_speed):
                 ball.move()
                 ball.wall_collision(game.walls)
